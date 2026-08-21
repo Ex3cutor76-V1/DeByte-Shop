@@ -29,3 +29,7 @@ sudo dbs
 
 * perl;
 * git;
+
+## Por que a V1.0 não existe no github?
+
+As primeiras versões do DBS infelizmente não será publicada, uma vez que o DeByte Shop não foi de fato pensado para ser open source, mas, acabou sendo na versão 2.0, como uma forma de atualizar melhor o gerenciador de componentes do DeByte, entretanto, não se possui cópias da versão 1.0
