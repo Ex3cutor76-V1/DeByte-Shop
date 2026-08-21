@@ -1,0 +1,325 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# Registro de softwares
+my $registro = "/var/lib/debyte/installed.txt";
+
+# Hash dos componentes oficiais da DeByte
+# Campos por software:
+#   repositorio - URL do git usado para clonar
+#   pasta       - pasta de instalação do software
+#   instalar    - script/comando de instalação (delega ao install.sh quando existir)
+#   remover     - comando específico de desinstalação do software
+my %softwares = (
+"SOC-Term" => {
+repositorio => "https://github.com/Ex3cutor76-V1/SOC-Term.git",
+pasta => "SOC-Term",
+instalar => "./install.sh",
+remover => "rm -f /usr/local/bin/sct && rm -rf /opt/SOC-Term",
+},
+"Enic" => {
+repositorio => "https://github.com/Ex3cutor76-V1/DeByte-Linux.git",
+pasta => "ENIC",
+instalar => "./install.sh",
+},
+"DPN" => {
+repositorio => "https://github.com/Ex3cutor76-V1/DeByte-Protocol-Network.git",
+pasta => "DPN",
+instalar => "./install.sh",
+},
+);
+# Hash dos softwares da comunidade
+
+# Ainda não existe softwares de outros desenvolvedores
+
+# Função de verificação de root
+sub root {
+if ($< != 0) {
+print "Falha! Use: sudo dbs";
+exit (1);
+}
+}
+
+# Função de verificação do git
+sub gitver {
+my $git = system("git --version");
+
+if ($git != 0) {
+print "Git não instalado/encontrado\n";
+exit(1);
+}
+}
+
+# Função de verificação da instalação de softwares
+sub instalar_software {
+    my ($nome) = @_;
+
+    my $repositorio = $softwares{$nome}->{repositorio};
+    my $pasta = $softwares{$nome}->{pasta};
+    my $instalar = $softwares{$nome}->{instalar};
+
+    print "Baixando $nome...\n";
+
+    system("git clone $repositorio") == 0
+        or die "Erro ao baixar $nome\n";
+
+    chdir($pasta)
+        or die "Não consegui entrar na pasta: $!\n";
+
+    system("sudo $instalar") == 0
+        or die "Erro ao instalar $nome\n";
+
+    chdir($ENV{'HOME'})
+        or die "Não consegui voltar para HOME: $!\n";
+
+    registrar($nome);
+
+    print "$nome instalado com sucesso!\n";
+}
+
+# Função dos componentes DeByte
+sub componentes {
+
+    my @lista = keys %softwares;
+
+    print "\nComponentes disponíveis:\n";
+
+    my $contador = 1;
+
+    foreach my $software (@lista) {
+        print "$contador) $software\n";
+        $contador++;
+    }
+
+    print "\nEscolha: ";
+    my $opc1 = <STDIN>;
+    chomp($opc1);
+
+    if ($opc1 >= 1 && $opc1 <= @lista) {
+
+        my $nome = $lista[$opc1 - 1];
+
+        print "Verificando git...\n";
+        gitver();
+
+        instalar_software($nome);
+
+    } else {
+        print "Opção inválida.\n";
+    }
+}
+
+# Função de preparação de registros
+sub preparar_registro {
+if (!-d "/var/lib/debyte") {
+system("mkdir -p /var/lib/debyte");
+}
+if (!-e $registro) {
+system("touch $registro");
+}
+}
+
+# Função de registros
+sub registrar {
+my ($nome) = @_;
+open(my $arquivo, ">>", $registro)
+or die "Erro ao abrir registro: $!";
+print $arquivo "$nome\n";
+close($arquivo);
+}
+
+# Função de remoção do registro
+sub remover_registro {
+
+    my ($nome) = @_;
+
+    open(my $entrada, "<", $registro)
+        or die "Erro ao ler registro: $!";
+
+
+    my @softwares = <$entrada>;
+
+    close($entrada);
+
+
+    open(my $saida, ">", $registro)
+        or die "Erro ao atualizar registro: $!";
+
+
+    foreach my $software (@softwares) {
+
+        chomp($software);
+
+        if ($software ne $nome) {
+            print $saida "$software\n";
+        }
+    }
+
+
+    close($saida);
+}
+
+# Função de desinstalação de um software, usando o comando registrado no hash
+sub desinstalar_software {
+
+    my ($nome) = @_;
+
+    if (!exists $softwares{$nome}) {
+        print "Software $nome nao possui desinstalador registrado no dbs.\n";
+        print "Removendo apenas do registro...\n";
+        remover_registro($nome);
+        print "$nome removido do registro.\n";
+        return;
+    }
+
+    my $remover = $softwares{$nome}->{remover};
+
+    print "Removendo $nome...\n";
+
+    system($remover) == 0
+        or die "Erro ao remover $nome\n";
+
+    remover_registro($nome);
+
+    print "$nome removido com sucesso!\n";
+}
+
+# Função de desinstalação dos softwares
+sub remove {
+
+    open(my $arquivo, "<", $registro)
+        or die "Erro ao ler registro: $!";
+
+
+    my @instalados = <$arquivo>;
+
+    close($arquivo);
+
+
+    if (!@instalados) {
+        print "Nenhum software instalado.\n";
+        return;
+    }
+
+
+    print "\nSoftwares instalados:\n";
+    print "=====================\n";
+
+
+    my $contador = 1;
+
+    foreach my $software (@instalados) {
+
+        chomp($software);
+
+        print "$contador) $software\n";
+
+        $contador++;
+    }
+
+
+    print "\nEscolha o software: ";
+
+    my $escolha = <STDIN>;
+    chomp($escolha);
+
+
+    if ($escolha < 1 || $escolha > @instalados) {
+        print "Opção inválida.\n";
+        return;
+    }
+
+    my $nome = $instalados[$escolha - 1];
+
+    chomp($nome);
+
+    desinstalar_software($nome);
+}
+
+sub evento {
+print "Sem nenhum software por enquanto...\n";
+}
+
+sub banco {
+print "Aviso: Todos os softwares de eventos não serão descritos por aqui e sim na documentação dos criadores e na documentação do DeByte Linux";
+print "\n";
+print "SOC-Term - Ferramenta de triagem de segurança em ambientes linux\n";
+print "ENIC - Emulador de terminal feito em perl\n";
+print "DPN - Ferramenta para testes de rede\n";
+print "Sem mais softwares por aqui...\n";
+}
+
+# Função de atualizar o DBS
+sub atualizar {
+print "Atualizando DBS...\n";
+
+my %dbs = (
+"DBS" => {
+repositorio3 => "https://github.com/Ex3cutor76-V1/DeByte-Shop.git",
+pasta3 => "DBS",
+instalar3 => "./install.sh",
+},
+);
+my $repositorio2 = $dbs{"DBS"}->{repositorio3};
+my $pasta2 = $dbs{"DBS"}->{pasta3};
+my $instalar2 = $dbs{"DBS"}->{instalar3};
+
+system("git clone $repositorio2") == 0
+or die "Erro ao atualizar o dbs\n";
+
+chdir($pasta2)
+or die "Não consegui entrar na pasta: $!\n";
+
+system("sudo $instalar2") == 0
+or die "Erro ao atualizar o dbs\n";
+
+chdir($ENV{'HOME'})
+or die "Não consegui voltar para HOME: $!\n";
+
+print "DBS atualizado com sucesso!\n";
+}
+
+# Chamando a função para preparar registros no inicio
+root();
+preparar_registro();
+
+# Menu
+print "==========================\n";
+print "       DeByte SHOP\n";
+print "==========================\n";
+print "\n";
+print "1) Componentes adicionais do sistema\n";
+print "2) Ferramentas de eventos\n";
+print "3) Informações dos softwares\n";
+print "4) Atualizar o DBS\n";
+print "5) Remover softwares\n";
+print "0) Sair\n";
+print "\n";
+print "Escolha: ";
+my $opcao = <STDIN>;
+chomp($opcao);
+
+if ($opcao == 1) {
+componentes();
+}
+elsif ($opcao == 2) {
+evento();
+}
+elsif ($opcao == 3) {
+banco();
+}
+elsif ($opcao == 4) {
+atualizar();
+}
+elsif ($opcao == 5) {
+remove();
+}
+elsif ($opcao == 0) {
+print "Saindo do DeByte Shop...\n";
+exit(0);
+}
+else {
+print "Opção inválida.\n";
+}
