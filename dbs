@@ -26,7 +26,7 @@ instalar => "./install.sh",
 },
 "DPN" => {
 repositorio => "https://github.com/Ex3cutor76-V1/DeByte-Protocol-Network.git",
-pasta => "DPN",
+pasta => "DeByte-Protocol-Network",
 instalar => "./install.sh",
 },
 );
