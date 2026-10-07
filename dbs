@@ -258,7 +258,7 @@ print "Atualizando DBS...\n";
 my %dbs = (
 "DBS" => {
 repositorio3 => "https://github.com/Ex3cutor76-V1/DeByte-Shop.git",
-pasta3 => "DBS",
+pasta3 => "DeByte-Shop",
 instalar3 => "./install.sh",
 },
 );
