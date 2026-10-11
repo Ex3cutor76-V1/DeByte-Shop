@@ -29,6 +29,12 @@ repositorio => "https://github.com/Ex3cutor76-V1/DeByte-Protocol-Network.git",
 pasta => "DeByte-Protocol-Network",
 instalar => "./install.sh",
 },
+
+"D-Disker" => {
+repositorio => "https://github.com/Ex3cutor76-V1/D-Disker.git",
+pasta => "D-Disker",
+instalar => "./install.sh",
+},
 );
 # Hash dos softwares da comunidade
 
@@ -248,6 +254,7 @@ print "\n";
 print "SOC-Term - Ferramenta de triagem de segurança em ambientes linux\n";
 print "ENIC - Emulador de terminal feito em perl\n";
 print "DPN - Ferramenta para testes de rede\n";
+print "D-Disker - Canivete suíço para manipulação de disco\n";
 print "Sem mais softwares por aqui...\n";
 }
 
