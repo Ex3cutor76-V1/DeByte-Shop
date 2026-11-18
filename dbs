@@ -35,6 +35,12 @@ repositorio => "https://github.com/Ex3cutor76-V1/D-Disker.git",
 pasta => "D-Disker",
 instalar => "./install.sh",
 },
+
+"Askey" => {
+repositorio => "https://github.com/Ex3cutor76-V1/Askey.git",
+pasta => "Askey",
+instalar => "./install.sh",
+},
 );
 # Hash dos softwares da comunidade
 
@@ -255,6 +261,7 @@ print "SOC-Term - Ferramenta de triagem de segurança em ambientes linux\n";
 print "ENIC - Emulador de terminal feito em perl\n";
 print "DPN - Ferramenta para testes de rede\n";
 print "D-Disker - Canivete suíço para manipulação de disco\n";
+print "Askey - Codificador e decodificador de ASCII\n";
 print "Sem mais softwares por aqui...\n";
 }
 
